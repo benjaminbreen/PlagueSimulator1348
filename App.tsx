@@ -15,6 +15,7 @@ import { findItemMatch, generateProceduralEntity } from './utils/procGen';
 import { audioManager } from './utils/audioManager';
 import { generateMovementNarrative } from './utils/movementNarrative';
 import { buildEntityPositionMap, buildItemLocationMap } from './utils/mapUtils';
+import { resolveWealthTier } from './utils/locationWealth';
 import { GameState, ItemMetadata, EntityMetadata, Entity, Container, LlmTranscript, HumoralBalance } from './types';
 
 const MAX_MAP_COLS = 30;
@@ -263,6 +264,7 @@ const App: React.FC = () => {
             day: initialDay,
             turnCount: 0,
             location: startResponse.newLocation,
+            locationWealth: resolveWealthTier(startResponse.locationWealth, hType, profile.socialClass, startResponse.newLocation),
             health: startResponse.updatedHealth,
             symptoms: startResponse.updatedSymptoms,
             humors: startResponse.updatedHumors, // New field
@@ -316,6 +318,7 @@ const App: React.FC = () => {
           day: fallbackDay,
           turnCount: 0,
           location: 'Damascus, Syria',
+          locationWealth: resolveWealthTier(undefined, undefined, fallbackProfile.socialClass, 'Damascus, Syria'),
           health: 100,
           symptoms: [],
           humors: { blood: 50, phlegm: 50, yellowBile: 50, blackBile: 50 },
@@ -817,6 +820,7 @@ const App: React.FC = () => {
             containers: hasContainerUpdate ? filteredContainers : prev.containers,
             bio: { ...prev.bio, family: updatedFamily },
             location: response.newLocation,
+            locationWealth: resolveWealthTier(response.locationWealth, houseType, prev.bio.socialClass, response.newLocation),
             localMapAscii: finalizedMap,
             status: isDead ? 'dead' : response.gameStatus,
             options: safeOptions,
@@ -1018,6 +1022,7 @@ const App: React.FC = () => {
           <div className="flex-shrink-0 h-[40%] min-h-[220px] max-h-[380px]">
             <MapContainer
               location={gameState.location}
+              locationWealth={gameState.locationWealth}
               mapAscii={gameState.localMapAscii}
               entities={gameState.entities}
               interactables={gameState.interactables}

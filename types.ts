@@ -87,6 +87,8 @@ export interface HumoralBalance {
   blackBile: number;   // Melancholic (Earth/Cold+Dry) - Necrosis/Depression
 }
 
+export type WealthTier = 'poor' | 'modest' | 'merchant' | 'elite';
+
 export interface Container {
   id: string;
   name: string; // "Wooden Chest", "Clay Jar", "Sack"
@@ -103,6 +105,7 @@ export interface GameState {
   day: number;
   turnCount: number;
   location: string;
+  locationWealth: WealthTier;
   health: number; // 0-100
   symptoms: string[];
   humors: HumoralBalance; // New field
@@ -145,6 +148,7 @@ export interface TurnResponse {
   presentContainers?: Container[]; // New field
   updatedFamilyStatus?: FamilyMember[];
   newLocation: string;
+  locationWealth: WealthTier;
   isGameOver: boolean;
   gameStatus: 'alive' | 'dead' | 'survived';
   options: Option[];

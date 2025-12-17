@@ -31,6 +31,11 @@ You must track the player's "Humors" (0-100 scale, where 50 is balanced).
 - Black Bile (Melancholic): Increases with sorrow/dry foods/necrosis. High = Depression/Death.
 ADJUST THESE based on the player's condition and symptoms.
 
+LOCATION WEALTH:
+Set "locationWealth" to one of: poor, modest, merchant, elite.
+- Base it on the immediate setting (home, street, souk, mosque) and the visible material culture.
+- Use "poor" for cramped alleys, tenements, or rough quarters; "modest" for typical homes and streets; "merchant" for shops, khans, and prosperous districts; "elite" for villas, palaces, and richly appointed spaces.
+
 MAP GENERATION RULES:
 You must generate a "localMapAscii" string for every turn. Maps must be REALISTIC and CUSTOMIZED to the described setting.
 Aim for cinematic staging: irregular silhouettes, layered shadow bands (░), and diagonals that break pure grid symmetry. Prefer asymmetric compositions over perfect rectangles unless the space is formally architectural.
@@ -154,6 +159,7 @@ Schema:
   "presentContainers": [{"id": "chest1", "name": "Wooden Chest", "type": "chest", "symbol": "▪", "contents": ["Bread", "Knife"], "x": 5, "y": 3, "searched": false}],
   "updatedFamilyStatus": [{"name": "Name", "status": "Status", "note": "Optional update"}], 
   "newLocation": "Full Hierarchical Address String",
+  "locationWealth": "poor" | "modest" | "merchant" | "elite",
   "localMapAscii": "multi-line string of the map",
   "isGameOver": boolean,
   "gameStatus": "alive" | "dead" | "survived",

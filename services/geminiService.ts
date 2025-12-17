@@ -2,6 +2,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { getSystemInstruction } from "../constants";
 import { GameState, TurnResponse, ItemMetadata, EntityMetadata, CharacterProfile } from "../types";
+import { resolveWealthTier } from "../utils/locationWealth";
 
 // Initialize Gemini Client
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
@@ -109,6 +110,7 @@ const turnResponseSchema = {
         }
     },
     newLocation: { type: Type.STRING },
+    locationWealth: { type: Type.STRING, enum: ["poor", "modest", "merchant", "elite"] },
     localMapAscii: { type: Type.STRING },
     isGameOver: { type: Type.BOOLEAN },
     gameStatus: { type: Type.STRING, enum: ["alive", "dead", "survived"] },
@@ -123,7 +125,7 @@ const turnResponseSchema = {
       }
     }
   },
-  required: ["narrative", "updatedHealth", "updatedSymptoms", "updatedHumors", "newLocation", "isGameOver", "gameStatus", "options", "updatedInventory", "updatedWorn", "presentEntities", "presentInteractables", "localMapAscii"]
+  required: ["narrative", "updatedHealth", "updatedSymptoms", "updatedHumors", "newLocation", "locationWealth", "isGameOver", "gameStatus", "options", "updatedInventory", "updatedWorn", "presentEntities", "presentInteractables", "localMapAscii"]
 };
 
 // --- Initialization ---
@@ -148,6 +150,7 @@ export const initializeGameStory = async (profile: CharacterProfile, houseType: 
       Ensure the family members (${profile.family.map(f => f.name).join(', ')}) are present or accounted for.
       Initialize humors to a relatively balanced state (40-60 range).
       Set "newLocation" to the specific room name where the player starts (e.g. "Bedroom" or "Sleeping Quarters").
+      Set "locationWealth" based on the immediate setting (poor/modest/merchant/elite).
     `;
 
     try {
@@ -175,6 +178,7 @@ export const initializeGameStory = async (profile: CharacterProfile, houseType: 
             presentContainers: [],
             updatedFamilyStatus: [],
             newLocation: "Bedroom, Damascus, Syria",
+            locationWealth: resolveWealthTier(undefined, houseType, profile.socialClass, "Bedroom, Damascus, Syria"),
             localMapAscii: " [ INIT MAP ERROR ] ",
             isGameOver: false,
             gameStatus: 'alive',
@@ -200,6 +204,7 @@ export const initializeGameStory = async (profile: CharacterProfile, houseType: 
             presentInteractables: [],
             updatedFamilyStatus: [],
             newLocation: "Bedroom",
+            locationWealth: resolveWealthTier(undefined, houseType, profile.socialClass, "Bedroom"),
             localMapAscii: " [ ERROR ] ",
             isGameOver: false,
             gameStatus: 'alive',
@@ -247,6 +252,7 @@ export const generateTurn = async (
       activity in ["standing","praying","walking","working","resting","fleeing","trading"].
     - Map string format: localMapAscii must be one plain string with \\n line breaks; do NOT use '+' or concatenation.
     - DO NOT pad maps with long runs of commas/spaces. Redesign tighter if needed. Ensure exactly one '@'.
+    - Set locationWealth each turn: "poor" | "modest" | "merchant" | "elite", based on the immediate setting.
 
     Player Action: ${playerAction}
     
@@ -325,6 +331,7 @@ export const generateTurn = async (
       presentContainers: currentGameState.containers || [],
       updatedFamilyStatus: currentGameState.bio.family || [],
       newLocation: currentGameState.location,
+      locationWealth: currentGameState.locationWealth,
       localMapAscii: " [ MAP DATA CORRUPTED ] ",
       isGameOver: false,
       gameStatus: 'alive',
@@ -359,6 +366,7 @@ export const generateTurn = async (
         presentInteractables: [],
         updatedFamilyStatus: [],
         newLocation: currentGameState.location,
+        locationWealth: currentGameState.locationWealth,
         localMapAscii: generateFallbackMap(),
         isGameOver: false,
         gameStatus: 'alive',

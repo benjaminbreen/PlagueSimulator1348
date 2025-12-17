@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
 import TerminalPanel from './TerminalPanel';
-import MapPanel from './MapPanel';
-import { Entity, LlmTranscript } from '../types';
+import Map3DPanel from './Map3DPanel';
+import { Entity, LlmTranscript, WealthTier } from '../types';
 
 interface MapContainerProps {
   location: string;
+  locationWealth: WealthTier;
   mapAscii: string;
   entities: Entity[];
   interactables: string[];
@@ -19,7 +20,7 @@ interface MapContainerProps {
   immediateLocation?: string;
 }
 
-const MapContainer: React.FC<MapContainerProps> = ({ location, mapAscii, entities, interactables, lightMode, onEntityClick, onObjectClick, onExitClick, onContainerClick, playerName, debugTranscripts, immediateLocation }) => {
+const MapContainer: React.FC<MapContainerProps> = ({ location, locationWealth, mapAscii, entities, interactables, lightMode, onEntityClick, onObjectClick, onExitClick, onContainerClick, playerName, debugTranscripts, immediateLocation }) => {
   const [activeTab, setActiveTab] = useState('MAP');
   const [showTranscript, setShowTranscript] = useState(false);
 
@@ -65,15 +66,19 @@ const MapContainer: React.FC<MapContainerProps> = ({ location, mapAscii, entitie
 
     if (activeTab === 'MAP') {
       return (
-        <MapPanel
+        <Map3DPanel
           location={location}
+          locationWealth={locationWealth}
           mapAscii={mapAscii}
           entities={entities}
           interactables={interactables}
+          lightMode={lightMode}
           onExitClick={onExitClick}
           onContainerClick={onContainerClick}
           playerName={playerName}
           immediateLocation={immediateLocation}
+          onEntityClick={onEntityClick}
+          onObjectClick={onObjectClick}
         />
       );
     }
