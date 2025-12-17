@@ -5,7 +5,7 @@ import { GameState, TurnResponse, ItemMetadata, EntityMetadata, CharacterProfile
 import { resolveWealthTier } from "../utils/locationWealth";
 
 // Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const safeParseResponse = <T>(raw: string | undefined | null, fallbackFactory: (reason: string) => T): T => {
   if (!raw) return fallbackFactory("Empty response");

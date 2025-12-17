@@ -38,8 +38,10 @@ npm install
 
 3. Create a `.env.local` file in the root directory and add your Gemini API key:
 ```
-GEMINI_API_KEY=your_api_key_here
+VITE_GEMINI_API_KEY=your_api_key_here
 ```
+
+   Get your API key from [Google AI Studio](https://ai.google.dev/)
 
 4. Start the development server:
 ```bash
@@ -98,6 +100,21 @@ npm run build
 ```
 
 The built files will be in the `dist` directory.
+
+## Deploying to Vercel
+
+1. Push your code to GitHub (without the `.env.local` file - it's gitignored)
+
+2. Import your repository in [Vercel](https://vercel.com)
+
+3. Add the environment variable in Vercel:
+   - Go to Project Settings → Environment Variables
+   - Add: `VITE_GEMINI_API_KEY` with your Gemini API key value
+   - Make sure it's available for Production, Preview, and Development
+
+4. Deploy! Vercel will automatically build and deploy your app
+
+**Note**: The `VITE_` prefix is required for Vite to expose the variable to the client-side code.
 
 ## License
 
