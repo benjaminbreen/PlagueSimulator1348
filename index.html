@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plague 1348: Damascus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=VT323&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,600;0,700;1,600&display=swap');
+      
+      :root {
+        --crt-bg: #050505;
+        --crt-text: #4ade80;
+        --crt-scanline: rgba(0, 0, 0, 0.2);
+        --crt-glow: rgba(74, 222, 128, 0.4);
+      }
+
+      /* --- LIGHT MODE: THE PHYSICIAN'S JOURNAL --- */
+      body.light-mode {
+        --crt-bg: #f5f1e6; /* Warmer Parchment */
+        --crt-text: #451a03; /* Amber/Dark Brown */
+        background-color: #f5f1e6;
+        color: #451a03;
+      }
+      
+      /* Paper Texture Overlay for Light Mode */
+      body.light-mode::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        /* Subtle noise texture */
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      body {
+        background-color: #050505;
+        margin: 0;
+        font-family: 'VT323', monospace; /* Default Dark Mode Font */
+        overflow-x: hidden;
+        transition: background-color 0.5s ease, color 0.5s ease;
+      }
+
+      /* Font Swapping */
+      body.light-mode {
+        font-family: 'Courier Prime', monospace; /* Typewriter feel */
+      }
+      
+      body.light-mode .font-header {
+        font-family: 'Crimson Text', serif; /* Old Book feel */
+      }
+
+      /* Global CRT Screen Effect (Dark Mode) */
+      body:not(.light-mode) .crt-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+        pointer-events: none;
+        z-index: 50;
+        box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+      }
+
+      /* Global Amber Overlay Effect (Light Mode) */
+      body.light-mode .crt-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        /* Amber Scanlines */
+        background: linear-gradient(
+          rgba(245, 158, 11, 0.05) 50%, 
+          rgba(0, 0, 0, 0) 50%
+        ), radial-gradient(circle, transparent 70%, rgba(120, 53, 15, 0.15) 100%);
+        background-size: 100% 4px, 100% 100%;
+        pointer-events: none;
+        z-index: 55;
+      }
+
+      /* --- RETRO PHOSPHOR MESH (The "Realistic" Monitor Look) --- */
+      /* Apply this class to containers that need the physical screen look */
+      .retro-pixel-mesh {
+        position: relative;
+        overflow: hidden;
+        background-color: #020602; /* Deep dark green unlit phosphor */
+        box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+      }
+
+      .retro-pixel-mesh::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        background: radial-gradient(circle at center, rgba(32, 255, 32, 0.08) 0%, rgba(0, 0, 0, 0) 90%);
+        pointer-events: none;
+      }
+
+      .retro-pixel-mesh::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 50; 
+        pointer-events: none;
+        background: 
+            linear-gradient(90deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.5) 50%),
+            linear-gradient(0deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.3) 50%);
+        background-size: 3px 100%, 100% 3px;
+      }
+
+      .retro-pixel-mesh .terminal-text-sharp {
+         text-shadow: 0 0 2px rgba(74, 222, 128, 0.7); 
+         filter: contrast(1.2) brightness(1.1);
+      }
+      
+      .crt-text-high-glow {
+        text-shadow: 0 0 2px #4ade80, 0 0 8px #4ade80;
+        filter: brightness(1.2);
+      }
+
+      /* --- MAP GLOWS --- */
+      
+      /* Dark Mode (Neon/Matrix) */
+      body:not(.light-mode) .map-glow-player { 
+        color: #f97316 !important; /* Force Orange-500 */
+        text-shadow: 0 0 5px rgba(249, 115, 22, 0.8), 0 0 10px rgba(249, 115, 22, 0.5); 
+      }
+      body:not(.light-mode) .map-glow-npc { 
+        color: #ef4444 !important; /* Force Red-500 */
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.8), 0 0 10px rgba(239, 68, 68, 0.5); 
+      }
+      body:not(.light-mode) .map-glow-item { 
+         color: #60a5fa !important; /* Force Blue-400 */
+         text-shadow: 0 0 4px rgba(96, 165, 250, 0.8); 
+      }
+
+      /* Light Mode (Amber Glows) */
+      body.light-mode .map-glow-player {
+        color: #c2410c !important; /* Darker Orange/Rust */
+        text-shadow: 0 0 6px rgba(249, 115, 22, 0.6);
+        font-weight: 800;
+      }
+      body.light-mode .map-glow-npc {
+         color: #b91c1c !important; /* Deep Red */
+         text-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+         font-weight: 800;
+      }
+      body.light-mode .map-glow-item {
+         color: #0369a1 !important; /* Strong Blue */
+         text-shadow: 0 0 6px rgba(14, 165, 233, 0.5);
+         font-weight: 800;
+      }
+
+      /* Animations */
+      @keyframes scroll {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 100%; }
+      }
+
+      .animate-scanline {
+         animation: scroll 60s linear infinite;
+      }
+
+      @keyframes fade-in-up {
+        0% {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slide-in-left {
+        0% {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes slide-in-right {
+        0% {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fade-in-up 0.5s ease-out;
+      }
+
+      .animate-slide-in-left {
+        animation: slide-in-left 0.7s ease-out 0.1s both;
+      }
+
+      .animate-slide-in-right {
+        animation: slide-in-right 0.7s ease-out 0.2s both;
+      }
+
+      /* Text Glow Base */
+      .terminal-text {
+        text-shadow: 0 0 2px var(--crt-glow), 0 0 5px var(--crt-glow);
+      }
+      
+      body.light-mode .terminal-text {
+         text-shadow: none;
+         font-weight: 500;
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--crt-text);
+        border-radius: 4px;
+        opacity: 0.5;
+      }
+      
+      body.light-mode ::-webkit-scrollbar-thumb {
+        background: #78350f; /* Amber/Brown scrollbar */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.32.0",
+    "d3": "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <div class="crt-overlay"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
